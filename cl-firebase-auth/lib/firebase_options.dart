@@ -49,21 +49,4 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCoGIgqcv1JIeInezP49-D0Vhnd54k_n24',
-    appId: '1:104684165785:web:cd42ff3217c5b892dc7608',
-    messagingSenderId: '104684165785',
-    projectId: 'e-blah',
-    authDomain: 'e-blah.firebaseapp.com',
-    storageBucket: 'e-blah.appspot.com',
-    measurementId: 'G-DSD8CSKZ1M',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAywngwzq_kMJ90WikcEFuirgYV93VVXT0',
-    appId: '1:104684165785:android:87c6a02728c9ba89dc7608',
-    messagingSenderId: '104684165785',
-    projectId: 'e-blah',
-    storageBucket: 'e-blah.appspot.com',
-  );
 }
