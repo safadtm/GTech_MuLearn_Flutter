@@ -27,31 +27,45 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: tdBGColor,
       appBar: _appBarWidget(),
-      body: Stack(
+      body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            child: Column(
+          Expanded(
+            child: ListView(
+              shrinkWrap: true,
               children: [
-                searchBox(),
-                ListView(
-                  shrinkWrap: true,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 50, bottom: 20),
-                      child: const Text(
-                        'All ToDos',
-                        style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.w500),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 15,
+                  ),
+                  child: searchBox(),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 0, 
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(
+                          top: 50,
+                          bottom: 20,
+                        ),
+                        child: const Text(
+                          'All ToDos',
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.w500),
+                        ),
                       ),
-                    ),
-                    for (ToDo todo in _foundToDo.reversed)
-                      ToDoItem(
-                        todo: todo,
-                        onToDoChanged: _handleToDoChange,
-                        onDeleteItem: _deleteToDoItem,
-                      ),
-                  ],
+                      for (ToDo todo in _foundToDo.reversed)
+                        ToDoItem(
+                          todo: todo,
+                          onToDoChanged: _handleToDoChange,
+                          onDeleteItem: _deleteToDoItem,
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -95,7 +109,9 @@ class _HomePageState extends State<HomePage> {
                   margin: const EdgeInsets.only(bottom: 20, right: 20),
                   child: ElevatedButton(
                     onPressed: () {
-                      _addToDoItem(_todoController.text);
+                      if (_todoController.text.isNotEmpty) {
+                        _addToDoItem(_todoController.text);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: tdBlue,
@@ -152,12 +168,15 @@ class _HomePageState extends State<HomePage> {
         size: 30,
       ),
       actions: [
-        SizedBox(
-          height: 40,
-          width: 40,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.asset('assets/images/user.png'),
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: SizedBox(
+            height: 40,
+            width: 40,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset('assets/images/user.png'),
+            ),
           ),
         )
       ],
@@ -169,7 +188,7 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(20)),
-      child:  TextField(
+      child: TextField(
         onChanged: (value) => _runFilter(value),
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(0),
