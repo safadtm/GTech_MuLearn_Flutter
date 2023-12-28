@@ -1,3 +1,4 @@
+import 'package:cl_firebase_todo/screens/sign_in_page.dart';
 import 'package:cl_firebase_todo/screens/sign_up_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'firebase_options.dart';
 import 'screens/homepage.dart';
+import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +31,15 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: HomePage(),
-      home: SignUpPage(),
+       routes: {
+        '/': (context) => SplashScreen(
+          // Here, you can decide whether to show the LoginPage or HomePage based on user authentication
+          child: SignInPage(),
+        ),
+        '/signIn': (context) => SignInPage(),
+        '/signUp': (context) => SignUpPage(),
+        '/home': (context) => HomePage(),
+      },
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:cl_firebase_todo/model/todo.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/colors.dart';
+import '../widgets/toast.dart';
 import '../widgets/todo_item.dart';
 
 class HomePage extends StatefulWidget {
@@ -43,7 +45,7 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
-                    vertical: 0, 
+                    vertical: 0,
                   ),
                   child: Column(
                     children: [
@@ -162,10 +164,18 @@ class _HomePageState extends State<HomePage> {
   AppBar _appBarWidget() {
     return AppBar(
       backgroundColor: tdBGColor,
-      leading: const Icon(
-        Icons.menu,
-        color: tdBlack,
-        size: 30,
+      leading: GestureDetector(
+        onTap: () {
+          print("Logout");
+          FirebaseAuth.instance.signOut();
+          Navigator.pushNamed(context, "/signIn");
+          // showToast(message: "Successfully signed out");
+        },
+        child: const Icon(
+          Icons.logout,
+          color: tdBlack,
+          size: 30,
+        ),
       ),
       actions: [
         Padding(

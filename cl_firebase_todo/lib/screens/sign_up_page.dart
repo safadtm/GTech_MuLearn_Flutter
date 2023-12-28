@@ -32,7 +32,6 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -66,7 +65,9 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               const SizedBox(height: 30),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  _signUp();
+                },
                 child: Container(
                   width: double.infinity,
                   height: 45,
@@ -89,7 +90,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
               ),
-                 const SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Row(
@@ -119,5 +120,27 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
     );
+  }
+
+  void _signUp() async {
+    setState(() {
+      isSigningUp = true;
+    });
+
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signUpWithEmailAndPassword(email, password);
+
+    setState(() {
+      isSigningUp = false;
+    });
+
+    if (user != null) {
+      print(user.toString());
+      Navigator.pushNamed(context, "/home");
+    } else {
+      print("No user");
+    }
   }
 }

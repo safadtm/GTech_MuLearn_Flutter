@@ -27,10 +27,9 @@ class _SignInPageState extends State<SignInPage> {
     super.dispose();
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -58,7 +57,9 @@ class _SignInPageState extends State<SignInPage> {
               ),
               const SizedBox(height: 30),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  _signIn();
+                },
                 child: Container(
                   width: double.infinity,
                   height: 45,
@@ -81,7 +82,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
               ),
-                 const SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Row(
@@ -113,4 +114,22 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
+  void _signIn() async {
+    setState(() {
+      _isSigning = true;
+    });
+
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+    setState(() {
+      _isSigning = false;
+    });
+
+    if (user != null) {
+      Navigator.pushNamed(context, "/home");
+    } else {}
+  }
 }
