@@ -1,9 +1,10 @@
 import 'package:cl_firebase_todo/model/todo.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/colors.dart';
-import '../widgets/toast.dart';
+import '../services/auth_service.dart';
 import '../widgets/todo_item.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,13 +15,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final todosList = ToDo.todoList();
+  final AuthClass _auth = AuthClass();
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
 
+  final Stream<QuerySnapshot?> _stream =
+      FirebaseFirestore.instance.collection("ToDo").snapshots();
+
+  List<ToDo> firestoreToDos = [];
+  // List<Select> selected = [];
+
   @override
   void initState() {
-    _foundToDo = todosList;
+    fetchFirestoreData();
+    // _foundToDo = todosList;
     super.initState();
   }
 
@@ -137,15 +145,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _addToDoItem(String toDo) {
-    setState(() {
-      todosList.add(
-        ToDo(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          todoText: toDo,
-        ),
-      );
+  Future<void> _addToDoItem(String toDo) async {
+    await FirebaseFirestore.instance.collection("ToDo").add({
+      "id": DateTime.now().microsecondsSinceEpoch.toString(),
+      "todoText": _todoController.text,
     });
+    print("added todo to db");
+    // setState(() {
+    //   todosList.add(
+    //     ToDo(
+    //       id: DateTime.now().microsecondsSinceEpoch.toString(),
+    //       todoText: toDo,
+    //     ),
+    //   );
+    // });
     _todoController.clear();
   }
 
@@ -156,9 +169,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _deleteToDoItem(String id) {
-    setState(() {
-      todosList.removeWhere((item) => item.id == id);
-    });
+    var instance = FirebaseFirestore.instance.collection("ToDo");
+
+    instance.doc().delete();
+
+    // setState(() {
+    //   todosList.removeWhere((item) => item.id == id);
+    // });
   }
 
   AppBar _appBarWidget() {
@@ -167,7 +184,7 @@ class _HomePageState extends State<HomePage> {
       leading: GestureDetector(
         onTap: () {
           print("Logout");
-          FirebaseAuth.instance.signOut();
+          _auth.signout(context: context);
           Navigator.pushNamed(context, "/signIn");
           // showToast(message: "Successfully signed out");
         },
@@ -199,7 +216,7 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: TextField(
-        onChanged: (value) => _runFilter(value),
+        // onChanged: (value) => _runFilter(value),
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(0),
           prefixIcon: Icon(
@@ -216,20 +233,47 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _runFilter(String enteredKeyword) {
-    List<ToDo> results = [];
-    if (enteredKeyword.isEmpty) {
-      results = todosList;
-    } else {
-      results = todosList
-          .where((item) => item.todoText!
-              .toLowerCase()
-              .contains(enteredKeyword.toLowerCase()))
-          .toList();
-    }
+  // void _runFilter(String enteredKeyword) {
+  //   List<ToDo> results = [];
+  //   if (enteredKeyword.isEmpty) {
+  //     results = todosList;
+  //   } else {
+  //     results = todosList
+  //         .where((item) => item.todoText!
+  //             .toLowerCase()
+  //             .contains(enteredKeyword.toLowerCase()))
+  //         .toList();
+  //   }
 
-    setState(() {
-      _foundToDo = results;
+  //   setState(() {
+  //     _foundToDo = results;
+  //   });
+  // }
+
+  void fetchFirestoreData() {
+    FirebaseFirestore.instance
+        .collection('ToDo')
+        .get()
+        .then((QuerySnapshot snapshot) {
+      List<ToDo> fetchedToDos = [];
+      snapshot.docs.forEach((DocumentSnapshot doc) {
+        Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+
+        if (data != null) {
+          ToDo todo = ToDo(
+            id: doc.id,
+            todoText: data['todoText'] ??
+                '', // Replace 'todoText' with your actual field name
+          );
+          fetchedToDos.add(todo);
+        }
+      });
+
+      setState(() {
+        _foundToDo = fetchedToDos.reversed.toList();
+      });
+    }).catchError((error) {
+      print('Error fetching Firestore data: $error');
     });
   }
 }
