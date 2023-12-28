@@ -39,45 +39,83 @@ class _HomePageState extends State<HomePage> {
       appBar: _appBarWidget(),
       body: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 15,
+            ),
+            child: searchBox(),
+          ),
+          Container(
+            margin: const EdgeInsets.only(
+              top: 50,
+              bottom: 20,
+            ),
+            child: const Text(
+              'All ToDos',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+            ),
+          ),
           Expanded(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 15,
-                  ),
-                  child: searchBox(),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 0,
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(
-                          top: 50,
-                          bottom: 20,
-                        ),
-                        child: const Text(
-                          'All ToDos',
-                          style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                      for (ToDo todo in _foundToDo.reversed)
-                        ToDoItem(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('ToDo')
+                  .orderBy('id', descending: true)
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(); // While waiting for data, show a loading indicator
+                }
+
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+
+                if (!snapshot.hasData ||
+                    snapshot.data == null ||
+                    snapshot.data!.docs.isEmpty) {
+                  return const Text('No ToDos');
+                }
+
+                return Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot doc = snapshot.data!.docs[index];
+                      Map<String, dynamic>? data =
+                          doc.data() as Map<String, dynamic>?;
+
+                      if (data != null) {
+                        ToDo todo = ToDo(
+                          id: doc.id,
+                          todoText: data['todoText'] ?? '',
+                          // Add other fields from your ToDo model
+                        );
+
+                        return ToDoItem(
+                          key: ValueKey(
+                              todo.id), // Ensure each widget has a unique key
                           todo: todo,
-                          onToDoChanged: _handleToDoChange,
-                          onDeleteItem: _deleteToDoItem,
-                        ),
-                    ],
+                          onToDoChanged: (changedToDo) {
+                            // Handle ToDo change logic
+                            print(
+                                'Clicked on Todo Item: ${changedToDo.todoText}');
+                          },
+                          onDeleteItem: (id) {
+                            // Handle deletion logic
+                            print(
+                                'Clicked on Delete Icon for ToDo with ID: $id');
+                          },
+                        );
+                      }
+
+                      return const SizedBox(); // Placeholder widget if data retrieval fails
+                    },
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
           Align(
@@ -151,14 +189,6 @@ class _HomePageState extends State<HomePage> {
       "todoText": _todoController.text,
     });
     print("added todo to db");
-    // setState(() {
-    //   todosList.add(
-    //     ToDo(
-    //       id: DateTime.now().microsecondsSinceEpoch.toString(),
-    //       todoText: toDo,
-    //     ),
-    //   );
-    // });
     _todoController.clear();
   }
 
@@ -186,7 +216,6 @@ class _HomePageState extends State<HomePage> {
           print("Logout");
           _auth.signout(context: context);
           Navigator.pushNamed(context, "/signIn");
-          // showToast(message: "Successfully signed out");
         },
         child: const Icon(
           Icons.logout,
@@ -215,9 +244,9 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(20)),
-      child: TextField(
+      child: const TextField(
         // onChanged: (value) => _runFilter(value),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           contentPadding: EdgeInsets.all(0),
           prefixIcon: Icon(
             Icons.search,
