@@ -39,22 +39,26 @@ class _HomePageState extends State<HomePage> {
       appBar: _appBarWidget(),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 15,
-            ),
-            child: searchBox(),
-          ),
-          Container(
-            margin: const EdgeInsets.only(
-              top: 50,
-              bottom: 20,
-            ),
-            child: const Text(
-              'All ToDos',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
-            ),
+          Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: searchBox(),
+              ),
+              Container(
+                margin: const EdgeInsets.only(
+                  top: 10,
+                  bottom: 20,
+                ),
+                child: const Text(
+                  'All ToDos',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -78,42 +82,32 @@ class _HomePageState extends State<HomePage> {
                   return const Text('No ToDos');
                 }
 
-                return Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      DocumentSnapshot doc = snapshot.data!.docs[index];
-                      Map<String, dynamic>? data =
-                          doc.data() as Map<String, dynamic>?;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot doc = snapshot.data!.docs[index];
+                    Map<String, dynamic>? data =
+                        doc.data() as Map<String, dynamic>?;
 
-                      if (data != null) {
-                        ToDo todo = ToDo(
-                          id: doc.id,
-                          todoText: data['todoText'] ?? '',
-                          // Add other fields from your ToDo model
-                        );
+                    if (data != null) {
+                      ToDo todo = ToDo(
+                        id: doc.id,
+                        todoText: data['todoText'] ?? '',
+                        isDone: data['isDone'] ?? false,
+                      );
 
-                        return ToDoItem(
-                          key: ValueKey(
-                              todo.id), // Ensure each widget has a unique key
-                          todo: todo,
-                          onToDoChanged: (changedToDo) {
-                            // Handle ToDo change logic
-                            print(
-                                'Clicked on Todo Item: ${changedToDo.todoText}');
-                          },
-                          onDeleteItem: (id) {
-                            // Handle deletion logic
-                            print(
-                                'Clicked on Delete Icon for ToDo with ID: $id');
-                          },
-                        );
-                      }
+                      return ToDoItem(
+                        key: ValueKey(
+                            todo.id), 
+                        todo: todo,
+                        onToDoChanged: _handleToDoChange,
+                        onDeleteItem: _deleteToDoItem,
+                      );
+                    }
 
-                      return const SizedBox(); // Placeholder widget if data retrieval fails
-                    },
-                  ),
+                    return const SizedBox(); // Placeholder widget if data retrieval fails
+                  },
                 );
               },
             ),
@@ -187,25 +181,34 @@ class _HomePageState extends State<HomePage> {
     await FirebaseFirestore.instance.collection("ToDo").add({
       "id": DateTime.now().microsecondsSinceEpoch.toString(),
       "todoText": _todoController.text,
+      "isDone": true,
     });
     print("added todo to db");
     _todoController.clear();
   }
 
   void _handleToDoChange(ToDo todo) {
-    setState(() {
-      todo.isDone = !todo.isDone;
+    var instance = FirebaseFirestore.instance.collection("ToDo");
+
+    instance.doc(todo.id).update({
+      "isDone": !todo.isDone,
+    }).then((_) {
+      setState(() {
+        todo.isDone = !todo.isDone;
+      });
+    }).catchError((error) {
+      print("Failed to update isDone: $error");
     });
   }
 
   void _deleteToDoItem(String id) {
     var instance = FirebaseFirestore.instance.collection("ToDo");
 
-    instance.doc().delete();
-
-    // setState(() {
-    //   todosList.removeWhere((item) => item.id == id);
-    // });
+    instance.doc(id).delete().then((_) {
+      print("ToDo deleted successfully!");
+    }).catchError((error) {
+      print("Failed to delete ToDo: $error");
+    });
   }
 
   AppBar _appBarWidget() {
@@ -244,9 +247,9 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(20)),
-      child: const TextField(
-        // onChanged: (value) => _runFilter(value),
-        decoration: InputDecoration(
+      child: TextField(
+        onChanged: (value) => _runFilter(value),
+        decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(0),
           prefixIcon: Icon(
             Icons.search,
@@ -262,22 +265,43 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // void _runFilter(String enteredKeyword) {
-  //   List<ToDo> results = [];
-  //   if (enteredKeyword.isEmpty) {
-  //     results = todosList;
-  //   } else {
-  //     results = todosList
-  //         .where((item) => item.todoText!
-  //             .toLowerCase()
-  //             .contains(enteredKeyword.toLowerCase()))
-  //         .toList();
-  //   }
+  Future<void> _runFilter(String enteredKeyword) async {
+    if (enteredKeyword.isEmpty) {
+      setState(() {
+        _foundToDo = []; // Clear the results if the keyword is empty
+      });
+    } else {
+      try {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection('ToDo')
+            .where('todoText', isGreaterThanOrEqualTo: enteredKeyword)
+            .where('todoText', isLessThan: '${enteredKeyword}z')
+            .get();
 
-  //   setState(() {
-  //     _foundToDo = results;
-  //   });
-  // }
+        List<ToDo> results = querySnapshot.docs.map((doc) {
+          Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+
+          if (data != null) {
+            print(data['todoText']);
+            return ToDo(
+              id: doc.id,
+              todoText: data['todoText'] ?? '',
+            );
+          }
+          return ToDo(id: '', todoText: '');
+        }).toList();
+
+        setState(() {
+          _foundToDo = results;
+        });
+      } catch (error) {
+        print('Error searching Firestore: $error');
+        setState(() {
+          _foundToDo = []; // Clear the results on error
+        });
+      }
+    }
+  }
 
   void fetchFirestoreData() {
     FirebaseFirestore.instance
@@ -291,8 +315,8 @@ class _HomePageState extends State<HomePage> {
         if (data != null) {
           ToDo todo = ToDo(
             id: doc.id,
-            todoText: data['todoText'] ??
-                '', // Replace 'todoText' with your actual field name
+            todoText: data['todoText'] ?? '',
+            isDone: data['isDone'] ?? false,
           );
           fetchedToDos.add(todo);
         }
