@@ -1,3 +1,4 @@
+import 'package:cl_firebase_todo/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void navigateToHome() {
     Future.delayed(
-      Duration(seconds: 3),
+      const Duration(seconds: 3),
       () {
         Navigator.pushReplacement(
           context,
@@ -45,11 +46,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void navigateToSignIn() {
     Future.delayed(
-      Duration(seconds: 3),
+      const Duration(seconds: 3),
       () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => SignInPage()), // Replace with your sign-in page
+          MaterialPageRoute(builder: (context) => const SignInPage()), // Replace with your sign-in page
         );
       },
     );
@@ -57,13 +58,27 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
-        child: Text(
-          "Welcome To Todos",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Welcome To ",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+             Text(
+              "Todos",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: tdBlue
+              ),
+            ),
+          ],
         ),
       ),
     );

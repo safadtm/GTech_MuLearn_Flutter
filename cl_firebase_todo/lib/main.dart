@@ -30,7 +30,6 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // home: HomePage(),
        routes: {
         '/': (context) => const SplashScreen(
           child: HomePage(),

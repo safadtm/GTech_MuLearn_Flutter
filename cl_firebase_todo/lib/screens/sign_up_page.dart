@@ -138,7 +138,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
     if (user != null) {
       print(user.toString());
-      Navigator.pushNamed(context, "/home");
+      Navigator.pushReplacementNamed(context, "/home");
     } else {
       print("No user");
     }

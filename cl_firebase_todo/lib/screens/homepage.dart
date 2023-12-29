@@ -16,11 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final AuthClass _auth = AuthClass();
-  List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
-
-  final Stream<QuerySnapshot?> _stream =
-      FirebaseFirestore.instance.collection("ToDo").snapshots();
 
   List<ToDo> firestoreToDos = [];
   // List<Select> selected = [];
@@ -39,26 +35,15 @@ class _HomePageState extends State<HomePage> {
       appBar: _appBarWidget(),
       body: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                child: searchBox(),
-              ),
-              Container(
-                margin: const EdgeInsets.only(
-                  top: 10,
-                  bottom: 20,
-                ),
-                child: const Text(
-                  'All ToDos',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
+          Container(
+            margin: const EdgeInsets.only(
+              top: 10,
+              bottom: 20,
+            ),
+            child: const Text(
+              'All ToDos',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+            ),
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -71,17 +56,17 @@ class _HomePageState extends State<HomePage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator(); // While waiting for data, show a loading indicator
                 }
-
+    
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 }
-
+    
                 if (!snapshot.hasData ||
                     snapshot.data == null ||
                     snapshot.data!.docs.isEmpty) {
                   return const Text('No ToDos');
                 }
-
+    
                 return ListView.builder(
                   shrinkWrap: true,
                   itemCount: snapshot.data!.docs.length,
@@ -89,14 +74,14 @@ class _HomePageState extends State<HomePage> {
                     DocumentSnapshot doc = snapshot.data!.docs[index];
                     Map<String, dynamic>? data =
                         doc.data() as Map<String, dynamic>?;
-
+    
                     if (data != null) {
                       ToDo todo = ToDo(
                         id: doc.id,
                         todoText: data['todoText'] ?? '',
                         isDone: data['isDone'] ?? false,
                       );
-
+    
                       return ToDoItem(
                         key: ValueKey(
                             todo.id), 
@@ -105,7 +90,7 @@ class _HomePageState extends State<HomePage> {
                         onDeleteItem: _deleteToDoItem,
                       );
                     }
-
+    
                     return const SizedBox(); // Placeholder widget if data retrieval fails
                   },
                 );
@@ -181,7 +166,6 @@ class _HomePageState extends State<HomePage> {
     await FirebaseFirestore.instance.collection("ToDo").add({
       "id": DateTime.now().microsecondsSinceEpoch.toString(),
       "todoText": _todoController.text,
-      "isDone": true,
     });
     print("added todo to db");
     _todoController.clear();
@@ -193,9 +177,6 @@ class _HomePageState extends State<HomePage> {
     instance.doc(todo.id).update({
       "isDone": !todo.isDone,
     }).then((_) {
-      setState(() {
-        todo.isDone = !todo.isDone;
-      });
     }).catchError((error) {
       print("Failed to update isDone: $error");
     });
@@ -218,7 +199,7 @@ class _HomePageState extends State<HomePage> {
         onTap: () {
           print("Logout");
           _auth.signout(context: context);
-          Navigator.pushNamed(context, "/signIn");
+          Navigator.pushNamedAndRemoveUntil(context, "/signIn", (route) => false);
         },
         child: const Icon(
           Icons.logout,
@@ -242,67 +223,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget searchBox() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(20)),
-      child: TextField(
-        onChanged: (value) => _runFilter(value),
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.all(0),
-          prefixIcon: Icon(
-            Icons.search,
-            color: tdBlack,
-            size: 20,
-          ),
-          prefixIconConstraints: BoxConstraints(maxHeight: 20, minWidth: 25),
-          border: InputBorder.none,
-          hintText: 'Search',
-          hintStyle: TextStyle(color: tdGrey),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _runFilter(String enteredKeyword) async {
-    if (enteredKeyword.isEmpty) {
-      setState(() {
-        _foundToDo = []; // Clear the results if the keyword is empty
-      });
-    } else {
-      try {
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('ToDo')
-            .where('todoText', isGreaterThanOrEqualTo: enteredKeyword)
-            .where('todoText', isLessThan: '${enteredKeyword}z')
-            .get();
-
-        List<ToDo> results = querySnapshot.docs.map((doc) {
-          Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-
-          if (data != null) {
-            print(data['todoText']);
-            return ToDo(
-              id: doc.id,
-              todoText: data['todoText'] ?? '',
-            );
-          }
-          return ToDo(id: '', todoText: '');
-        }).toList();
-
-        setState(() {
-          _foundToDo = results;
-        });
-      } catch (error) {
-        print('Error searching Firestore: $error');
-        setState(() {
-          _foundToDo = []; // Clear the results on error
-        });
-      }
-    }
-  }
-
+ 
   void fetchFirestoreData() {
     FirebaseFirestore.instance
         .collection('ToDo')
@@ -320,10 +241,6 @@ class _HomePageState extends State<HomePage> {
           );
           fetchedToDos.add(todo);
         }
-      });
-
-      setState(() {
-        _foundToDo = fetchedToDos.reversed.toList();
       });
     }).catchError((error) {
       print('Error fetching Firestore data: $error');

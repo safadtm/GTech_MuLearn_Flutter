@@ -16,8 +16,8 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   bool _isSigning = false;
   final AuthClass _auth = AuthClass();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -128,7 +128,7 @@ class _SignInPageState extends State<SignInPage> {
     });
 
     if (user != null) {
-      Navigator.pushNamed(context, "/home");
+    Navigator.pushReplacementNamed(context, "/home");
     } else {}
   }
 }
