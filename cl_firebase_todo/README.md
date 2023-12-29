@@ -10,25 +10,27 @@ A simple mobile application for managing your tasks using Flutter, Firebase Auth
 
 ## Screenshots
 
-![Screenshot 1](cl_firebase_todo/assets/screenshots/todo1.jpg)
-![Screenshot 1](cl_firebase_todo/assets/screenshots/todo2.jpg)
-![Screenshot 1](cl_firebase_todo/assets/screenshots/todo3.jpg)
-![Screenshot 1](cl_firebase_todo/assets/screenshots/todo4.jpg)
-![Screenshot 1](cl_firebase_todo/assets/screenshots/todo5.jpg)
-![Screenshot 1](cl_firebase_todo/assets/screenshots/todo6.jpg)
-![Screenshot 1](cl_firebase_todo/assets/screenshots/todo7.jpg)
+<div style="display: flex; flex-wrap: wrap;">
+  <img src="https://github.com/safadtm/GTech_MuLearn_Flutter/blob/cl-firebase-todo/cl_firebase_todo/assets/screenshots/todo1.jpg" alt="Screenshot 1" width="250" height="400">
+  <img src="https://github.com/safadtm/GTech_MuLearn_Flutter/blob/cl-firebase-todo/cl_firebase_todo/assets/screenshots/todo2.jpg" alt="Screenshot 2" width="250" height="400">
+  <img src="https://github.com/safadtm/GTech_MuLearn_Flutter/blob/cl-firebase-todo/cl_firebase_todo/assets/screenshots/todo3.jpg" alt="Screenshot 3" width="250" height="400">
+  <img src="https://github.com/safadtm/GTech_MuLearn_Flutter/blob/cl-firebase-todo/cl_firebase_todo/assets/screenshots/todo4.jpg" alt="Screenshot 4" width="250" height="400">
+  <img src="https://github.com/safadtm/GTech_MuLearn_Flutter/blob/cl-firebase-todo/cl_firebase_todo/assets/screenshots/todo5.jpg" alt="Screenshot 5" width="250" height="400">
+  <img src="https://github.com/safadtm/GTech_MuLearn_Flutter/blob/cl-firebase-todo/cl_firebase_todo/assets/screenshots/todo6.jpg" alt="Screenshot 6" width="250" height="400">
+  <img src="https://github.com/safadtm/GTech_MuLearn_Flutter/blob/cl-firebase-todo/cl_firebase_todo/assets/screenshots/todo7.jpg" alt="Screenshot 7" width="250" height="400">
+</div>
 
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/todo-app.git
+   git clone https://github.com/safadtm/GTech_MuLearn_Flutter/tree/cl-firebase-todo
    ```
 
 2. Navigate to the project directory:
    ```bash
-   cd todo-app
+   cd cl-firebase-todo
    ```
 
 3. Install dependencies:
