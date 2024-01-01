@@ -1,6 +1,6 @@
 # Flutter Note App
 
-![App Demo](link_to_demo_gif_or_screenshot)
+<!-- ![App Demo](link_to_demo_gif_or_screenshot) -->
 
 A simple and intuitive note-taking application built using Flutter and Hive, offering a streamlined experience for organizing your thoughts and tasks.
 
@@ -20,7 +20,7 @@ A simple and intuitive note-taking application built using Flutter and Hive, off
 
 2. Navigate to the project directory.
    ```bash
-   cd flutter-note-app
+   cd cl_flutter_hive
    ```
 
 3. Install dependencies.
@@ -37,5 +37,5 @@ A simple and intuitive note-taking application built using Flutter and Hive, off
 
 - **Flutter**: UI toolkit for building natively compiled applications for mobile, web, and desktop.
 - **Hive**: Lightweight and fast NoSQL database.
-- *(Add any other relevant technologies here)*
+
 
