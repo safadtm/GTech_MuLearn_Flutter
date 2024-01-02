@@ -1,5 +1,7 @@
-import 'package:cl_flutter_hive/screens/noteapp.dart';
+import 'package:cl_flutter_hive/screens/home/homepage.dart';
 import 'package:flutter/material.dart';
+
+import 'utils/theme.dart';
 
 void main() {
   runApp(const NoteApp());
@@ -12,10 +14,9 @@ class NoteApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: Themes().lightTheme,
+      darkTheme: Themes().dartTheme,
+      themeMode: ThemeMode.system,
       title: 'Note App',
       home: const HomePage(),
     );
