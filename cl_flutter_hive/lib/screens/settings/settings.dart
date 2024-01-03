@@ -1,6 +1,7 @@
-import 'package:cl_flutter_hive/screens/settings/dark_mode.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../utils/theme.dart';
 import '../../widgets/custom_icon_btn.dart';
 import 'widgets/list_tile.dart';
 
@@ -55,16 +56,23 @@ class Setting extends StatelessWidget {
                 iconData: Icons.person,
                 subtitle: null,
               ),
-              ListTileSetting(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const DarkMode()),
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  return ListTileSetting(
+                    onTap: () {
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .swapTheme();
+                    },
+                    title: themeProvider.getTheme() == themeProvider.lightTheme
+                        ? "Dark Mode"
+                        : "Light Mode",
+                    iconData:
+                        themeProvider.getTheme() == themeProvider.lightTheme
+                            ? Icons.nights_stay
+                            : Icons.brightness_7,
+                    subtitle: null,
                   );
                 },
-                title: "Dark Mode",
-                iconData: Icons.nights_stay,
-                subtitle: null,
               ),
             ],
           ),

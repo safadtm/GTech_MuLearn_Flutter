@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Themes {
+class ThemeProvider extends ChangeNotifier {
+  late ThemeData _selectedTheme;
+  late SharedPreferences prefs;
+
   final lightTheme = ThemeData.light().copyWith(
     colorScheme: ColorScheme.light(
       background: Colors.grey.shade300,
@@ -36,4 +40,24 @@ class Themes {
         // backgroundColor: Colors.teal.shade500,
         ),
   );
+
+  ThemeProvider(bool darkThemeOn) {
+    _selectedTheme = darkThemeOn ? dartTheme : lightTheme;
+  }
+
+  Future<void> swapTheme() async {
+    prefs = await SharedPreferences.getInstance();
+
+    if (_selectedTheme == dartTheme) {
+      _selectedTheme = lightTheme;
+      await prefs.setBool("darkTheme", false);
+    } else {
+      _selectedTheme = dartTheme;
+      await prefs.setBool("darkTheme", true);
+    }
+
+    notifyListeners();
+  }
+
+  ThemeData getTheme() => _selectedTheme;
 }

@@ -1,10 +1,28 @@
 import 'package:cl_flutter_hive/screens/home/homepage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'utils/theme.dart';
 
-void main() {
-  runApp(const NoteApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  SharedPreferences.getInstance().then(
+    (prefs) {
+      var isDarkTheme = prefs.getBool("darkTheme") ?? false;
+      return runApp(
+        ChangeNotifierProvider<ThemeProvider>(
+          child: const NoteApp(),
+          create: (BuildContext context) {
+            return ThemeProvider(isDarkTheme);
+          },
+        ),
+      );
+    },
+  );
+
+  // runApp(const NoteApp());
 }
 
 class NoteApp extends StatelessWidget {
@@ -12,13 +30,15 @@ class NoteApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: Themes().lightTheme,
-      darkTheme: Themes().dartTheme,
-      themeMode: ThemeMode.system,
-      title: 'Note App',
-      home: const HomePage(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: themeProvider.getTheme(),
+          title: 'Note App',
+          home: const HomePage(),
+        );
+      },
     );
   }
 }
